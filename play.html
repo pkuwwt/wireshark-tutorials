@@ -1,0 +1,88 @@
+<html>
+<head>
+  <link href="video-js-5.8.8.css" rel="stylesheet">
+
+  <!-- If you'd like to support IE8 -->
+  <script src="videojs-ie8.min-1.1.2.js"></script>
+</head>
+
+<body>
+  <video id="my-video" class="video-js" controls preload="auto" width="640" height="264" data-setup="{}">
+    <source src="" type='video/mp4'>
+    <p class="vjs-no-js">
+      To view this video please enable JavaScript, and consider upgrading to a web browser that
+      <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+    </p>
+  </video>
+  </br>
+  <select id="my-select" value="">
+  </select>
+
+  <script src="video-5.8.8.js"></script>
+  <script>
+	  var mp4_files = [
+	   "./tutorials1/01 Introduction/001 Welcome to the course.mp4"
+	  ,"./tutorials1/01 Introduction/002 What you will learn.mp4"
+	  ,"./tutorials1/01 Introduction/003 Basic network knowledge recap.mp4"
+	  ,"./tutorials1/02 Installing Wireshark Sniffer/001 Installing Wireshark on Windows.mp4"
+	  ,"./tutorials1/02 Installing Wireshark Sniffer/002 Installing Wireshark on Mac OS X.mp4"
+	  ,"./tutorials1/02 Installing Wireshark Sniffer/003 Installing Wireshark on Linux Debian, CentOS, Ubuntu.mp4"
+	  ,"./tutorials1/03 Capturing Network Traffic/001 Considering your network infrastructure.mp4"
+	  ,"./tutorials1/03 Capturing Network Traffic/002 Your first capture.mp4"
+	  ,"./tutorials1/03 Capturing Network Traffic/003 Using capture filters.mp4"
+	  ,"./tutorials1/03 Capturing Network Traffic/004 Using tshark - capturing from command line.mp4"
+	  ,"./tutorials1/04 Analysing Network Traffic/001 Working in Wiresharks main window.mp4"
+	  ,"./tutorials1/04 Analysing Network Traffic/002 What are dissectors.mp4"
+	  ,"./tutorials1/04 Analysing Network Traffic/003 Using display filters.mp4"
+	  ,"./tutorials1/04 Analysing Network Traffic/004 Customizing the Wireshark window.mp4"
+	  ,"./tutorials1/05 Advanced features/001 Following TCP conversation.mp4"
+	  ,"./tutorials1/05 Advanced features/002 Extracting files from captured traffic.mp4"
+	  ,"./tutorials1/06 Final thoughts/001 Useful additional resources.mp4"
+	  ,"./tutorials1/06 Final thoughts/002 Thank you - What to cover next.mp4"
+	  ,"./tutorials1/07 BONUS/001 Practial Example Sniffing password sent over HTTP.mp4"
+	  ];
+	  var video = document.getElementById("my-video");
+	  var select = document.getElementById("my-select");
+	  video.children[0].src = mp4_files[0];
+	  for(var i in mp4_files) {
+		  var option = document.createElement("option");
+		  option.value = mp4_files[i];
+		  option.innerText = mp4_files[i];
+		  select.appendChild(option);
+	  }
+	  function selectNext() {
+		  var text = select.value;
+		  for(var i=0;i<mp4_files.length-1;i++) {
+			  if(text===mp4_files[i]) {
+				  select.value = mp4_files[i+1] ;
+				  break;
+			  }
+		  }
+	  }
+	  function tryplay() {
+		  count = 0;
+		  var play = function() {
+			  if(count>10) return;
+			  if(video.paused) {
+				  console.log(count);
+				  video.play();
+			  }
+			  else {
+				  count++;
+				  setTimeout(play,150);
+			  }
+		  };
+		  setTimeout(play, 150);
+	  }
+	  select.onchange = function() {
+		  video.src = select.value;
+		  tryplay();
+	  };
+	  video.onended = function() {
+		  selectNext();
+		  select.onchange();
+	  };
+  </script>
+
+</body>
+</html>
