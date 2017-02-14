@@ -15,46 +15,71 @@
     </p>
   </video>
   </br>
-  <select id="my-select" value="">
+  </br>
+  <div>
+  <label>Tutorial: </label>
+  <select id="my-tutorial-select" value="">
   </select>
+  <div>
+  </br>
+  <div>
+  <label>Episode: </label>
+  <select id="my-mp4-select" value="">
+  </select>
+  </div>
 
   <script src="js/video-5.8.8.js"></script>
   <script>
-	  var mp4_files = [
-	   "./tutorials1/01 Introduction/001 Welcome to the course.mp4"
-	  ,"./tutorials1/01 Introduction/002 What you will learn.mp4"
-	  ,"./tutorials1/01 Introduction/003 Basic network knowledge recap.mp4"
-	  ,"./tutorials1/02 Installing Wireshark Sniffer/001 Installing Wireshark on Windows.mp4"
-	  ,"./tutorials1/02 Installing Wireshark Sniffer/002 Installing Wireshark on Mac OS X.mp4"
-	  ,"./tutorials1/02 Installing Wireshark Sniffer/003 Installing Wireshark on Linux Debian, CentOS, Ubuntu.mp4"
-	  ,"./tutorials1/03 Capturing Network Traffic/001 Considering your network infrastructure.mp4"
-	  ,"./tutorials1/03 Capturing Network Traffic/002 Your first capture.mp4"
-	  ,"./tutorials1/03 Capturing Network Traffic/003 Using capture filters.mp4"
-	  ,"./tutorials1/03 Capturing Network Traffic/004 Using tshark - capturing from command line.mp4"
-	  ,"./tutorials1/04 Analysing Network Traffic/001 Working in Wiresharks main window.mp4"
-	  ,"./tutorials1/04 Analysing Network Traffic/002 What are dissectors.mp4"
-	  ,"./tutorials1/04 Analysing Network Traffic/003 Using display filters.mp4"
-	  ,"./tutorials1/04 Analysing Network Traffic/004 Customizing the Wireshark window.mp4"
-	  ,"./tutorials1/05 Advanced features/001 Following TCP conversation.mp4"
-	  ,"./tutorials1/05 Advanced features/002 Extracting files from captured traffic.mp4"
-	  ,"./tutorials1/06 Final thoughts/001 Useful additional resources.mp4"
-	  ,"./tutorials1/06 Final thoughts/002 Thank you - What to cover next.mp4"
-	  ,"./tutorials1/07 BONUS/001 Practial Example Sniffing password sent over HTTP.mp4"
-	  ];
+	  var tutorials = null;
 	  var video = document.getElementById("my-video");
-	  var select = document.getElementById("my-select");
-	  video.children[0].src = mp4_files[0];
-	  for(var i in mp4_files) {
-		  var option = document.createElement("option");
-		  option.value = mp4_files[i];
-		  option.innerText = mp4_files[i];
-		  select.appendChild(option);
+	  var tutorial_select = document.getElementById("my-tutorial-select");
+	  var mp4_select = document.getElementById("my-mp4-select");
+	  function loadJSON(file, callback, type="application/json") {
+		  var xobj = new XMLHttpRequest();
+		  type = type || "application/json";
+		  xobj.overrideMimeType(type);
+		  xobj.open('GET', file, true);
+		  xobj.onreadystatechange = function () {
+			  if (xobj.readyState == 4 && xobj.status == "200") {
+				  // .open will NOT return a value but simply returns undefined in async mode so use a callback
+				  callback(xobj.responseText);
+			  }
+		  }
+		  xobj.send(null);
 	  }
-	  function selectNext() {
-		  var text = select.value;
-		  for(var i=0;i<mp4_files.length-1;i++) {
-			  if(text===mp4_files[i]) {
-				  select.value = mp4_files[i+1] ;
+	  function removeAllChildren(elem) {
+		  while(elem.firstChild) {
+			  elem.removeChild(elem.firstChild);
+		  }
+	  }
+	  function fillSelect(elem, options) {
+		  removeAllChildren(elem);
+		  for(var i in options) {
+			  var option = document.createElement("option");
+			  option.value = options[i];
+			  option.innerText = options[i];
+			  elem.appendChild(option);
+		  }
+		  elem.value = options[0];
+	  }
+	  function keys(d) {
+		  var res = [];
+		  for(var k in d) {
+			  res.push(k);
+		  }
+		  return res;
+	  }
+	  function setupSelects() {
+		  fillSelect(tutorial_select, keys(tutorials));
+		  var tutorial = tutorial_select.value;
+		  fillSelect(mp4_select, tutorials[tutorial]);
+		  video.src = mp4_select.value;
+	  }
+	  function selectNext(elem) {
+		  var text = elem.value;
+		  for(var i=0;i<elem.length-1;i++) {
+			  if(text===elem[i].value) {
+				  elem.value = elem[i+1].value ;
 				  break;
 			  }
 		  }
@@ -74,15 +99,30 @@
 		  };
 		  setTimeout(play, 150);
 	  }
-	  select.onchange = function() {
-		  video.src = select.value;
+	  var onTutorialChange = function() {
+		  var tutorial = tutorial_select.value;
+		  fillSelect(mp4_select, tutorials[tutorial]);
+		  video.src = mp4_select.value;
+	  };
+	  var onMp4Change = function() {
+		  video.src = mp4_select.value;
 		  tryplay();
 	  };
-	  video.onended = function() {
-		  selectNext();
-		  select.onchange();
+	  var onPlayEnded = function() {
+		  selectNext(mp4_select);
+		  mp4_select.onchange();
 	  };
+	  document.getElementsByTagName("body")[0].onload = function() {
+	  loadJSON("filelist.json", function(json) {
+		 tutorials = JSON.parse(json);
+		 if(tutorials) {
+			 setupSelects();
+			 tutorial_select.onchange = onTutorialChange;
+			 mp4_select.onchange = onMp4Change;
+			 video.onended = onPlayEnded;
+		 }
+	  });
+	  }
   </script>
-
 </body>
 </html>
